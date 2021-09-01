@@ -1,0 +1,28 @@
+#!/bin/bash -xv
+
+name=`date +%Y:%m:%d-%T`
+start_time=`date +%s`
+filename="log-"$name
+un=`whoami`
+cd "/home/"$un"/projects/buildlogs/"
+
+`touch $filename`
+
+filepath="/home/"$un"/projects/buildlogs/"$filename
+
+echo "Logging to "$filepath"."
+echo $@
+for var in $@
+    do
+        path="/home/"$un"/projects/"$var
+        echo $path
+        cd $path
+        pwd
+        echo "Building "$var"."
+        mvn clean install -Dmaven.test.skip=true -o &>> $filepath
+        mvn eclipse:clean eclipse:eclipse -o &>> $filepath
+    done
+
+end_time=date +%s
+echo "Build Successful!"
+echo "Execution Time: "$(($(($end_time-$start_time))/60))" mins."
